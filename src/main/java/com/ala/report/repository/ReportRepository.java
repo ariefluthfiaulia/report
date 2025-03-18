@@ -14,14 +14,22 @@ import com.ala.report.model.TimeRecord;
 @Repository
 public interface ReportRepository extends JpaRepository<TimeRecord, Long> {
 
-    @Query(value = "SELECT e.name AS employeeName, p.name AS projectName, " +
-                   "SUM(EXTRACT(EPOCH FROM (t.time_to - t.time_from)) / 3600) AS totalHours " +
-                   "FROM time_record t " +
-                   "JOIN employee e ON t.employee_id = e.id " +
-                   "JOIN project p ON t.project_id = p.id " +
-                   "WHERE t.time_from BETWEEN :startDate AND :endDate " +
-                   "GROUP BY e.name, p.name " +
-                   "ORDER BY e.name, p.name", nativeQuery = true)
+    @Query("SELECT new com.ala.report.dto.ReportDTO(e.name, p.name, t.timeFrom, t.timeTo) " +
+           "FROM TimeRecord t " +
+           "JOIN t.employee e " +
+           "JOIN t.project p " +
+           "WHERE t.timeFrom BETWEEN :startDate AND :endDate")
     List<ReportDTO> getReportData(@Param("startDate") LocalDateTime startDate,
                                   @Param("endDate") LocalDateTime endDate);
-}
+
+
+    @Query("SELECT new com.ala.report.dto.ReportDTO(e.name, p.name, t.timeFrom, t.timeTo) " +
+           "FROM TimeRecord t " +
+           "JOIN t.employee e " +
+           "JOIN t.project p " +
+           "WHERE e.name = :employeeName AND t.timeFrom BETWEEN :startDate AND :endDate")
+    List<ReportDTO> getReportDataForEmployee(@Param("employeeName") String employeeName,
+                                            @Param("startDate") LocalDateTime startDate,
+                                            @Param("endDate") LocalDateTime endDate);
+
+    }
