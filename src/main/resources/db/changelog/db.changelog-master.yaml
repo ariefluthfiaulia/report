@@ -3,4 +3,12 @@ databaseChangeLog:
       file: db/changelog/changelog-20250318-create-project-table.sql
   - include:
       file: db/changelog/changelog-20250318-create-employee-table.sql
+  - include:
+      file: db/changelog/changelog-20250318-create-time-record-table.sql
+  - include:
+      file: db/changelog/changelog-20250318-insert-data-project.sql
+  - include:
+      file: db/changelog/changelog-20250318-insert-data-employee.sql
+  - include:
+      file: db/changelog/changelog-20250318-insert-data-time-record.sql
    
