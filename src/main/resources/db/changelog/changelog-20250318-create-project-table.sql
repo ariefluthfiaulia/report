@@ -1,0 +1,5 @@
+DROP TABLE IF EXISTS project;
+CREATE TABLE project (
+ id INT8 PRIMARY KEY,
+ name VARCHAR(200)
+);

@@ -1,0 +1,6 @@
+databaseChangeLog:
+  - include:
+      file: db/changelog/changelog-20250318-create-project-table.sql
+  - include:
+      file: db/changelog/changelog-20250318-create-employee-table.sql
+   

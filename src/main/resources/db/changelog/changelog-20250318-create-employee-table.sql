@@ -1,0 +1,5 @@
+DROP TABLE IF EXISTS employee;
+CREATE TABLE employee (
+ id INT8 PRIMARY KEY,
+ name VARCHAR(60)
+);
