@@ -1,6 +1,5 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<html>
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Work Hours Report</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
@@ -8,14 +7,14 @@
 <body>
     <div class="container">
         <h1>Work Hours Report</h1>
-        <form method="get" action="/report">
+        <form th:action="@{/report}" method="get">
             <div class="form-group">
                 <label for="startDate">Start Date</label>
-                <input type="datetime-local" class="form-control" id="startDate" name="startDate" value="${startDate}">
+                <input type="datetime-local" class="form-control" id="startDate" name="startDate" th:value="${startDate}">
             </div>
             <div class="form-group">
                 <label for="endDate">End Date</label>
-                <input type="datetime-local" class="form-control" id="endDate" name="endDate" value="${endDate}">
+                <input type="datetime-local" class="form-control" id="endDate" name="endDate" th:value="${endDate}">
             </div>
             <button type="submit" class="btn btn-primary">Submit</button>
         </form>
@@ -29,15 +28,13 @@
                 </tr>
             </thead>
             <tbody>
-                <c:forEach var="entry" items="${reportData}">
-                    <tr>
-                        <td>${entry.employeeName}</td>
-                        <td>${entry.projectName}</td>
-                        <td>${entry.totalHours}</td>
-                    </tr>
-                </c:forEach>
+                <tr th:each="entry : ${reportData}">
+                    <td th:text="${entry.employeeName}"></td>
+                    <td th:text="${entry.projectName}"></td>
+                    <td th:text="${entry.totalHours}"></td>
+                </tr>
             </tbody>
         </table>
     </div>
 </body>
-</html>
+</html> 
