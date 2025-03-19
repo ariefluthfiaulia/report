@@ -3,6 +3,7 @@ package com.ala.report.controller;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.Authentication;
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.ala.report.dto.ReportDTO;
 import com.ala.report.repository.ReportRepository;
 
-@Controller 
+@Controller
 public class ReportController {
 
     private final ReportRepository reportRepository;
@@ -25,9 +26,10 @@ public class ReportController {
     }
 
     @GetMapping("/report")
-    public String showReport(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
-                             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
-                             Model model) {
+    public String showReport(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
+            Model model) {
 
         if (startDate == null || endDate == null) {
             startDate = LocalDateTime.now().minusMonths(1);

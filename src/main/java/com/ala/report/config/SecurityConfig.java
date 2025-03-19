@@ -38,11 +38,15 @@ public class SecurityConfig {
             .password("password")
             .roles("EMPLOYEE")
             .build();
+        UserDetails tom = User.withUsername("Tom")
+            .password("password")
+            .roles("EMPLOYEE")
+            .build();
         UserDetails admin = User.withUsername("admin")
             .password("admin")
             .roles("ADMIN")
             .build();
-        return new InMemoryUserDetailsManager(employee, admin);
+        return new InMemoryUserDetailsManager(employee, admin, tom);
     }
 
     @Bean
