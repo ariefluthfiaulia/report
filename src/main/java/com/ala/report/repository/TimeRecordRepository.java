@@ -1,8 +1,9 @@
 package com.ala.report.repository;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,7 +13,7 @@ import com.ala.report.dto.ReportDTO;
 import com.ala.report.model.TimeRecord;
 
 @Repository
-public interface ReportRepository extends JpaRepository<TimeRecord, Long> {
+public interface TimeRecordRepository extends JpaRepository<TimeRecord, Long> {
 
     @Query(value = 
         "SELECT e.name AS employeeName, p.name AS projectName, " +
@@ -23,8 +24,9 @@ public interface ReportRepository extends JpaRepository<TimeRecord, Long> {
         "WHERE t.time_from BETWEEN :startDate AND :endDate " +
         "GROUP BY e.name, p.name " +
         "ORDER BY e.name, p.name", nativeQuery = true)
-    List<ReportDTO> getReportData(@Param("startDate") LocalDateTime startDate,
-                                 @Param("endDate") LocalDateTime endDate);
+    Page<ReportDTO> getReportData(@Param("startDate") LocalDateTime startDate,
+                                 @Param("endDate") LocalDateTime endDate,
+                                 Pageable pageable);
 
     @Query(value = 
         "SELECT e.name AS employeeName, p.name AS projectName, " +
@@ -35,7 +37,8 @@ public interface ReportRepository extends JpaRepository<TimeRecord, Long> {
         "WHERE e.name = :employeeName AND t.time_from BETWEEN :startDate AND :endDate " +
         "GROUP BY e.name, p.name " +
         "ORDER BY e.name, p.name", nativeQuery = true) 
-    List<ReportDTO> getReportDataForEmployee(@Param("employeeName") String employeeName,
+    Page<ReportDTO> getReportDataForEmployee(@Param("employeeName") String employeeName,
                                            @Param("startDate") LocalDateTime startDate,
-                                           @Param("endDate") LocalDateTime endDate);
+                                           @Param("endDate") LocalDateTime endDate,
+                                           Pageable pageable);
 }

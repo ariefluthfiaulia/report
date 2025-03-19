@@ -1,10 +1,10 @@
 package com.ala.report.controller;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,14 +14,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.ala.report.dto.ReportDTO;
-import com.ala.report.repository.ReportRepository;
+import com.ala.report.repository.TimeRecordRepository;
 
 @Controller
 public class ReportController {
 
-    private final ReportRepository reportRepository;
+    private final TimeRecordRepository reportRepository;
 
-    public ReportController(ReportRepository reportRepository) {
+    public ReportController(TimeRecordRepository reportRepository) {
         this.reportRepository = reportRepository;
     }
 
@@ -29,6 +29,7 @@ public class ReportController {
     public String showReport(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
+            @PageableDefault(size = 10) Pageable pageable,
             Model model) {
 
         if (startDate == null || endDate == null) {
@@ -41,14 +42,14 @@ public class ReportController {
         boolean isAdmin = authentication.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 
-        List<ReportDTO> reportData = new ArrayList<>();
+        Page<ReportDTO> reportPage;
         if (isAdmin) {
-            reportData = reportRepository.getReportData(startDate, endDate);
+            reportPage = reportRepository.getReportData(startDate, endDate, pageable);
         } else {
-            reportData = reportRepository.getReportDataForEmployee(username, startDate, endDate);
+            reportPage = reportRepository.getReportDataForEmployee(username, startDate, endDate, pageable);
         }
 
-        model.addAttribute("reportData", reportData);
+        model.addAttribute("reportPage", reportPage);
         model.addAttribute("startDate", startDate);
         model.addAttribute("endDate", endDate);
 
