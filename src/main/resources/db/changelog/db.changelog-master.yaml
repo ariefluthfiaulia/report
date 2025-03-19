@@ -11,4 +11,6 @@ databaseChangeLog:
       file: db/changelog/changelog-20250318-insert-data-employee.sql
   - include:
       file: db/changelog/changelog-20250318-insert-data-time-record.sql
+  - include:
+      file: db/changelog/changelog-20250319-add-index.sql
    
