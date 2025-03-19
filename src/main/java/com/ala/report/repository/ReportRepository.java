@@ -18,7 +18,9 @@ public interface ReportRepository extends JpaRepository<TimeRecord, Long> {
            "FROM TimeRecord t " +
            "JOIN t.employee e " +
            "JOIN t.project p " +
-           "WHERE t.timeFrom BETWEEN :startDate AND :endDate")
+           "WHERE t.timeFrom BETWEEN :startDate AND :endDate " +
+           "GROUP BY t.employee.id, e.name, p.name " +
+           "ORDER BY e.name, p.name")
     List<ReportDTO> getReportData(@Param("startDate") LocalDateTime startDate,
                                   @Param("endDate") LocalDateTime endDate);
 
@@ -27,7 +29,9 @@ public interface ReportRepository extends JpaRepository<TimeRecord, Long> {
            "FROM TimeRecord t " +
            "JOIN t.employee e " +
            "JOIN t.project p " +
-           "WHERE e.name = :employeeName AND t.timeFrom BETWEEN :startDate AND :endDate")
+           "WHERE e.name = :employeeName AND t.timeFrom BETWEEN :startDate AND :endDate " +
+           "GROUP BY t.employee.id, e.name, p.name " +
+           "ORDER BY e.name, p.name")
     List<ReportDTO> getReportDataForEmployee(@Param("employeeName") String employeeName,
                                             @Param("startDate") LocalDateTime startDate,
                                             @Param("endDate") LocalDateTime endDate);
