@@ -6,7 +6,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
@@ -19,38 +19,36 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/css/**", "/js/**").permitAll()  // Izinkan akses ke resources
-                .requestMatchers("/report").hasAnyRole("EMPLOYEE", "ADMIN") // Izinkan EMPLOYEE dan ADMIN
+                .requestMatchers("/css/**", "/js/**").permitAll()  
+                .requestMatchers("/report").hasAnyRole("EMPLOYEE", "ADMIN") 
                 .anyRequest().authenticated())
             .formLogin(form -> form
-                .loginPage("/login") // Halaman login kustom (opsional)
-                .defaultSuccessUrl("/report") // Redirect setelah login berhasil
+                .loginPage("/login")
+                .defaultSuccessUrl("/report") 
                 .permitAll())
-            .logout(logout -> logout
-                .permitAll())
-            .csrf(csrf -> csrf.disable()); // Nonaktifkan CSRF untuk testing
+            .logout(logout -> logout.permitAll())
+            .csrf(csrf -> csrf.disable()); 
         return http.build();
     }
 
     @Bean
     public InMemoryUserDetailsManager userDetailsService() {
-        UserDetails employee = User.withUsername("employee")
-            .password("password")
-            .roles("EMPLOYEE")
+        return new InMemoryUserDetailsManager(
+            createUser("employee", "password", "EMPLOYEE"),
+            createUser("Tom", "password", "EMPLOYEE"),
+            createUser("admin", "admin", "ADMIN")
+        );
+    }
+
+    private UserDetails createUser(String username, String rawPassword, String role) {
+        return User.withUsername(username)
+            .password(passwordEncoder().encode(rawPassword)) // Enkripsi password
+            .roles(role)
             .build();
-        UserDetails tom = User.withUsername("Tom")
-            .password("password")
-            .roles("EMPLOYEE")
-            .build();
-        UserDetails admin = User.withUsername("admin")
-            .password("admin")
-            .roles("ADMIN")
-            .build();
-        return new InMemoryUserDetailsManager(employee, admin, tom);
     }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return NoOpPasswordEncoder.getInstance();
+        return new BCryptPasswordEncoder();
     }
 }
