@@ -1,6 +1,7 @@
 package com.ala.report.controller;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -52,6 +53,7 @@ public class ReportController {
         model.addAttribute("reportPage", reportPage);
         model.addAttribute("startDate", startDate);
         model.addAttribute("endDate", endDate);
+        model.addAttribute("pageSizes", Arrays.asList(5, 10, 20, 50, 100));
 
         return "work_hours_report";
     }
