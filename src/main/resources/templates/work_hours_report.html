@@ -3,6 +3,8 @@
 <head>
     <title>Work Hours Report</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <!-- Add jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -17,7 +19,8 @@
         </nav>
 
         <h1>Work Hours Report</h1>
-        <form th:action="@{/report}" method="get">
+        <!-- Convert form to use AJAX -->
+        <form id="reportForm" onsubmit="loadReport(event)">
             <div class="form-group">
                 <label for="startDate">Start Date</label>
                 <input type="datetime-local" class="form-control" id="startDate" name="startDate" th:value="${startDate}">
@@ -29,68 +32,78 @@
             <button type="submit" class="btn btn-primary">Submit</button>
         </form>
 
-        <table class="table table-bordered mt-4">
-            <thead>
-                <tr>
-                    <th>Employee Name</th>
-                    <th>Project Name</th>
-                    <th>Total Hours</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="entry : ${reportPage.content}">
-                    <td th:text="${entry.employeeName}"></td>
-                    <td th:text="${entry.projectName}"></td>
-                    <td th:text="${entry.totalHours}"></td>
-                </tr>
-                <tr th:if="${reportPage.content.empty}">
-                    <td colspan="3">No data found for the selected period.</td>
-                </tr>
-            </tbody>
-        </table>
-
-        <div class="d-flex justify-content-between align-items-center mt-3" th:if="${reportPage.totalPages > 0}">
-            <!-- Rows per page selector -->
-            <div class="d-flex align-items-center">
-                <span class="mr-2">Rows per page:</span>
-                <select class="form-control form-control-sm" style="width: auto;"
-                        onchange="window.location.href=this.value">
-                    <option th:each="size : ${pageSizes}"
-                            th:value="@{/report(page=0, size=${size}, startDate=${startDate}, endDate=${endDate})}"
-                            th:text="${size}"
-                            th:selected="${reportPage.size == size}">
-                    </option>
-                </select>
-                <span class="ml-4">
-                    Showing [[${reportPage.numberOfElements}]] of [[${reportPage.totalElements}]] entries
-                </span>
+        <!-- Add loading indicator -->
+        <div id="loadingIndicator" style="display: none;" class="text-center my-3">
+            <div class="spinner-border text-primary" role="status">
+                <span class="sr-only">Loading...</span>
             </div>
-            
-            <!-- Pagination -->
-            <nav aria-label="Page navigation">
-                <ul class="pagination mb-0">
-                    <li class="page-item" th:classappend="${reportPage.number == 0} ? 'disabled'">
-                        <a class="page-link" 
-                           th:href="@{/report(page=${reportPage.number - 1}, size=${reportPage.size}, startDate=${startDate}, endDate=${endDate})}">
-                           Previous
-                        </a>
-                    </li>
-                    <li class="page-item" th:each="pageNumber : ${#numbers.sequence(0, reportPage.totalPages - 1)}"
-                        th:classappend="${pageNumber == reportPage.number} ? 'active'">
-                        <a class="page-link" 
-                           th:href="@{/report(page=${pageNumber}, size=${reportPage.size}, startDate=${startDate}, endDate=${endDate})}"
-                           th:text="${pageNumber + 1}">
-                        </a>
-                    </li>
-                    <li class="page-item" th:classappend="${reportPage.number == reportPage.totalPages - 1} ? 'disabled'">
-                        <a class="page-link"
-                           th:href="@{/report(page=${reportPage.number + 1}, size=${reportPage.size}, startDate=${startDate}, endDate=${endDate})}">
-                           Next
-                        </a>
-                    </li>
-                </ul>
-            </nav>
+        </div>
+
+        <!-- Report content will be loaded here -->
+        <div id="reportContent">
+            <div th:replace="~{fragments/report-content :: content}"></div>
         </div>
     </div>
+
+    <script th:inline="javascript">
+        function loadReport(event) {
+            event.preventDefault();
+            
+            const startDate = $('#startDate').val();
+            const endDate = $('#endDate').val();
+            const page = 0; // Reset to first page when filtering
+            const size = $('#pageSize').val() || 10;
+
+            updateReport(startDate, endDate, page, size);
+        }
+
+        function updateReport(startDate, endDate, page, size) {
+            $('#loadingIndicator').show();
+            
+            $.get('/report', {
+                startDate: startDate,
+                endDate: endDate,
+                page: page,
+                size: size,
+                isAjax: true
+            })
+            .done(function(response) {
+                $('#reportContent').html(response);
+            })
+            .fail(function(jqXHR) {
+                alert('Error loading report: ' + jqXHR.responseText);
+            })
+            .always(function() {
+                $('#loadingIndicator').hide();
+            });
+        }
+
+        // Handle pagination clicks
+        $(document).on('click', '.pagination .page-link', function(e) {
+            e.preventDefault();
+            const href = $(this).attr('href');
+            if (href && !$(this).parent().hasClass('disabled')) {
+                const url = new URL(href, window.location.origin);
+                const params = new URLSearchParams(url.search);
+                
+                updateReport(
+                    $('#startDate').val(),
+                    $('#endDate').val(),
+                    params.get('page'),
+                    params.get('size')
+                );
+            }
+        });
+
+        // Handle page size changes
+        $(document).on('change', '#pageSize', function() {
+            updateReport(
+                $('#startDate').val(),
+                $('#endDate').val(),
+                0,
+                $(this).val()
+            );
+        });
+    </script>
 </body>
 </html>

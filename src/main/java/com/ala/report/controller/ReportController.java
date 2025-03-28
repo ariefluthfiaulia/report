@@ -30,7 +30,7 @@ public class ReportController {
     public String showReport(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
-            @PageableDefault(size = 10) Pageable pageable,
+            @PageableDefault(size = 10) Pageable pageable, @RequestParam(required = false, defaultValue = "false") boolean isAjax,
             Model model) {
 
         if (startDate == null || endDate == null) {
@@ -55,6 +55,6 @@ public class ReportController {
         model.addAttribute("endDate", endDate);
         model.addAttribute("pageSizes", Arrays.asList(5, 10, 20, 50, 100));
 
-        return "work_hours_report";
+        return isAjax ? "fragments/report-content :: content" : "work_hours_report";
     }
 }
