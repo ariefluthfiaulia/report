@@ -23,4 +23,5 @@ databaseChangeLog:
       file: db/changelog/changelog-20250321-add-data-time-record.sql
   - include:
       file: db/changelog/changelog-20250401-add-composite-indexes.sql
-   
+  - include:
+      file: db/changelog/changelog-20250402-create-partioning.sql
