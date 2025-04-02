@@ -94,14 +94,11 @@ Click the **logout** button in the top-right corner to sign out. You will be red
 ---
 
 ## Application Design
-
-### 1. Query Optimization Strategy
-- The original query had **2 subqueries in the select section** and **2 subqueries in the grouping section**, making it inefficient.
-- To optimize, **JOINs** were used instead of subqueries.
-- Two approaches were considered for implementation in JPA:
-  - **JPQL**: Supports query generation but does not support `EPOCH`.
-  - **Native Query**: Supports all PostgreSQL query features.
-- The final decision was to use **Native Query in JPA** for efficiency.
+### 1. Application Architecture
+- The application follows a **3-layer architecture**:
+  - **Controller Layer**: Handles HTTP requests and responses, and interacts with the service layer.
+  - **Service Layer**: Contains business logic and interacts with the repository layer.
+  - **Repository Layer**: Handles data access and interacts with the database using JPA.
 
 ### 2. Spring Boot Component Choices
 - **JPA**: Chosen for its **entity mapping** features, making data conversion simpler and code more efficient.
@@ -121,6 +118,12 @@ The application uses **Spring Security** for authentication and authorization:
   - **Solution**: Use **Native Query in JPA** for full PostgreSQL feature support.
 
 - **Optimizing Query Performance**:
-  - Analyzing inefficient subqueries and **replacing them with JOINs**.
-  - **Solution**: Use `EXPLAIN ANALYZE` to measure performance improvements.
+  - **Analyzing Inefficient Subqueries**:
+    - The original query contained inefficient subqueries, which were replaced with **JOINs** for better performance.
+    - **Solution**: replaced with **JOINs** for better performance
+  - **Database Partitioning**:
+    - The `time_record` table is partitioned by date to improve query performance on large datasets. This allows for faster data retrieval by limiting the amount of data scanned.
+  - **Database Indexing**:
+    - Appropriate indexes have been added to frequently queried columns, such as `time_from`, and `employee.name`, to speed up data retrieval.
+    - **Solution**: Identify and index columns based on query patterns and performance analysis.
 
